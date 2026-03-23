@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Cast Your Secure Vote — VoteSecure{% endblock %}
+
+{% block content %}
+<div class="glass-container">
+    <div class="header-section" style="text-align: center; margin-bottom: 50px;">
+        <h1 class="text-gradient" style="font-size: 40px;">Select your <span class="text-brand">Representative</span></h1>
+        <p style="color: var(--text-dim); margin-top: 10px;">Choose one candidate below. Your vote is end-to-end encrypted.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('vote') }}" id="vote-form">
+        <div class="candidates-grid">
+            {% for candidate in candidates %}
+            <label class="candidate-card" for="candidate-{{ candidate.id }}" onclick="selectCandidate(this)">
+                <input 
+                    type="radio" 
+                    name="candidate_id" 
+                    id="candidate-{{ candidate.id }}" 
+                    value="{{ candidate.id }}" 
+                    style="position: absolute; opacity: 0;"
+                    required
+                >
+                <div class="candidate-symbol">
+                    <span>{{ candidate.symbol }}</span>
+                </div>
+                <h3 style="margin-bottom: 4px;">{{ candidate.name }}</h3>
+                <p style="color: var(--text-dim); font-size: 13px; font-weight: 500;">{{ candidate.party }}</p>
+                
+                <div class="selection-indicator" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent;">
+                    <i class="fas fa-check"></i>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+
+        <div style="text-align: center; margin-top: 60px;">
+            <button type="submit" id="submit-vote-btn" class="btn-premium btn-primary" style="padding: 20px 60px; font-size: 18px; border: none;">
+                <i class="fas fa-vote-yea" style="margin-right: 12px;"></i>
+                <span>Submit Secure Vote</span>
+            </button>
+            <p style="margin-top: 20px; color: var(--text-muted); font-size: 13px;">
+                <i class="fas fa-info-circle"></i> Once submitted, your vote cannot be altered or removed.
+            </p>
+        </div>
+    </form>
+</div>
+
+<script>
+function selectCandidate(card) {
+    // Remove selected class from all
+    document.querySelectorAll('.candidate-card').forEach(c => {
+        c.classList.remove('selected');
+        c.querySelector('.selection-indicator').style.borderColor = 'var(--border)';
+        c.querySelector('.selection-indicator').style.background = 'transparent';
+        c.querySelector('.selection-indicator').style.color = 'transparent';
+    });
+    
+    // Add to clicked
+    card.classList.add('selected');
+    const indicator = card.querySelector('.selection-indicator');
+    indicator.style.borderColor = 'var(--primary)';
+    indicator.style.background = 'var(--primary)';
+    indicator.style.color = '#fff';
+}
+
+document.getElementById('vote-form').addEventListener('submit', function(e) {
+    const selected = document.querySelector('input[name="candidate_id"]:checked');
+    if (!selected) {
+        e.preventDefault();
+        alert('Please select a candidate before submitting.');
+    }
+});
+</script>
+{% endblock %}

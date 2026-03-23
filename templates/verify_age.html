@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Verify Age — VoteSecure{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card glass-card">
+        <div class="auth-icon">🎂</div>
+        <h1 class="auth-title">Age Verification</h1>
+        <p class="auth-subtitle">
+            You must be at least <strong>18 years old</strong> to vote. Please enter your date of birth.
+        </p>
+
+        <form method="POST" action="{{ url_for('verify_age') }}" class="auth-form">
+            <div class="form-group">
+                <label for="dob" class="form-label">Date of Birth</label>
+                <input
+                    type="date"
+                    id="dob"
+                    name="dob"
+                    class="form-input"
+                    required
+                    max="{{ today }}"
+                >
+            </div>
+            <button type="submit" id="verify-age-btn" class="btn btn--primary btn--full">
+                Verify Age ✓
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            <a href="{{ url_for('logout') }}">← Back to Login</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

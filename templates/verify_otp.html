@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Possession — VoteSecure{% endblock %}
+
+{% block content %}
+<div class="glass-container" style="max-width: 500px;">
+    <div class="premium-card">
+        <div style="text-align: center; margin-bottom: 32px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">✉️</div>
+            <h2 class="text-gradient">Two-Factor Auth</h2>
+            <p style="color: var(--text-dim); font-size: 14px; margin-top: 8px;">
+                Enter the unique 6-digit code sent to<br>
+                <strong style="color: var(--text-main)">{{ email }}</strong>
+            </p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash--{{ category }}" style="margin-bottom: 24px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('verify_otp') }}">
+            <input type="hidden" name="email" value="{{ email }}">
+            
+            <div class="form-group">
+                <label class="form-label" style="text-align: center; display: block;">Verification Code</label>
+                <input 
+                    type="text" 
+                    name="otp" 
+                    id="otp" 
+                    class="form-input" 
+                    placeholder="000000" 
+                    maxlength="6" 
+                    required 
+                    style="text-align: center; font-size: 32px; letter-spacing: 12px; font-weight: 800; padding: 20px;"
+                >
+            </div>
+
+            <button type="submit" class="btn-premium btn-primary" style="width: 100%; border: none;">
+                <span>Verify & Login</span>
+                <i class="fas fa-check-circle"></i>
+            </button>
+        </form>
+
+        <div style="margin-top: 32px; text-align: center;">
+            <p style="font-size: 13px; color: var(--text-dim);">
+                Didn't receive the code? 
+                <a href="{{ url_for('login') }}" style="color: var(--primary); font-weight: 600;">Resend OTP</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Election Intelligence — VoteSecure Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-container" style="max-width: 1400px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; flex-wrap: wrap; gap: 24px;">
+        <div class="dashboard-header animate-fadeIn">
+            <h1 style="font-size: 36px;"><span class="text-gradient">Election</span> <span class="text-brand">Dashboard</span></h1>
+            <p style="color: var(--text-dim); margin-top: 8px;">Real-time decrypted vote tallies and security audit trail.</p>
+        </div>
+        
+        <div class="dashboard-stats" style="display: flex; gap: 24px;">
+            <div class="premium-card" style="padding: 16px 32px; text-align: center;">
+                <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px;">Total Ballots Cast</div>
+                <div style="font-size: 24px; font-weight: 800;" class="text-brand">{{ total_votes }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; align-items: start;">
+        <!-- Live Tally Column -->
+        <section class="premium-card" style="position: sticky; top: 120px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+                <span style="font-size: 24px;">📊</span>
+                <h3 style="font-size: 20px;">Secure Decrypted Tally</h3>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 32px;">
+                {% for item in results %}
+                <div class="candidate-result {% if item.is_winner %}candidate-result--winner{% endif %}" style="position: relative;">
+                    {% if item.is_winner %}
+                    <div class="winner-badge animate-fadeIn">
+                        <span style="font-size: 10px; font-weight: 800; letter-spacing: 1px;">ELECTION WINNER</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 20px;">{{ item.symbol }}</span>
+                            <div>
+                                <div style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                                    {{ item.name }}
+                                    {% if item.is_winner %}
+                                    <span style="color: #FFD700; font-size: 14px;">🏆</span>
+                                    {% endif %}
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">{{ item.party }}</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 18px; font-weight: 800;" class="{% if item.is_winner %}text-brand{% endif %}">{{ "%.1f"|format(item.percentage) }}%</div>
+                            <div style="font-size: 12px; color: var(--text-dim);">{{ item.votes }} votes</div>
+                        </div>
+                    </div>
+                    <div class="progress-container" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+                        <div class="progress-bar" style="width: {{ item.percentage }}%; background-color: {{ item.color }}; {% if item.is_winner %}box-shadow: 0 0 15px {{ item.color }}44;{% endif %}"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Audit Log Column -->
+        <section class="premium-card">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+                <span style="font-size: 24px;">📝</span>
+                <h3 style="font-size: 20px;">System Security Logs</h3>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0 12px; font-size: 13px;">
+                    <thead style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 11px;">
+                        <tr>
+                            <th style="padding: 0 16px; text-align: left; font-weight: 600;">Timestamp</th>
+                            <th style="padding: 0 16px; text-align: left; font-weight: 600;">Event Action</th>
+                            <th style="padding: 0 16px; text-align: left; font-weight: 600;">Authorized User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr style="background: rgba(255, 255, 255, 0.02); border-radius: 8px; transition: 0.3s; border: 1px solid var(--border);">
+                            <td style="padding: 16px; border-radius: 12px 0 0 12px; color: var(--text-dim);">{{ log.timestamp.strftime('%H:%M:%S') }}</td>
+                            <td style="padding: 16px;">
+                                <span style="padding: 4px 10px; border-radius: 6px; background: rgba(139, 92, 246, 0.1); color: var(--primary); font-weight: 600; font-size: 11px;">
+                                    {{ log.action }}
+                                </span>
+                            </td>
+                            <td style="padding: 16px; border-radius: 0 12px 12px 0; font-family: monospace;">{{ log.user_email }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

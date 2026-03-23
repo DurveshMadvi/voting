@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Secure Online Voting — VoteSecure{% endblock %}
+
+{% block content %}
+<div class="glass-container">
+    <section class="hero-section" style="text-align: center; padding: 60px 0;">
+        <div class="hero-badge" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--primary-glow); border-radius: 100px; margin-bottom: 24px;">
+            <span style="font-size: 14px;">🔒</span>
+            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Military-Grade Security</span>
+        </div>
+        
+        <h1 class="hero-title" style="font-size: clamp(2.5rem, 8vw, 4.5rem); margin-bottom: 20px;">
+            Your Voice <span class="text-brand">Matters</span>
+        </h1>
+        
+        <p class="hero-subtitle" style="font-size: 18px; color: var(--text-dim); max-width: 600px; margin: 0 auto 40px; line-height: 1.8;">
+            A next-generation voting ecosystem built on transparency, 
+            end-to-end encryption, and immutable trust. 
+            Experience the future of democracy.
+        </p>
+        
+        <div class="hero-actions" style="display: flex; gap: 20px; justify-content: center;">
+            <a href="{{ url_for('login') }}" class="btn-premium btn-primary">
+                <span>Start Voting</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="{{ url_for('results') }}" class="btn-premium btn-outline">
+                <i class="fas fa-chart-pie"></i>
+                <span>View Results</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-top: 80px;">
+        <div class="premium-card">
+            <div style="font-size: 32px; margin-bottom: 20px;">🔐</div>
+            <h3 style="margin-bottom: 12px;">RSA Encryption</h3>
+            <p style="color: var(--text-dim); font-size: 14px;">Every vote is shielded by asymmetric encryption, ensuring only the official tally system can decrypt your choice.</p>
+        </div>
+        
+        <div class="premium-card">
+            <div style="font-size: 32px; margin-bottom: 20px;">⚡</div>
+            <h3 style="margin-bottom: 12px;">Instant Verification</h3>
+            <p style="color: var(--text-dim); font-size: 14px;">Receive immediate confirmation and a cryptographic receipt to verify your vote was cast exactly as intended.</p>
+        </div>
+        
+        <div class="premium-card">
+            <div style="font-size: 32px; margin-bottom: 20px;">📉</div>
+            <h3 style="margin-bottom: 12px;">Immutable Audit</h3>
+            <p style="color: var(--text-dim); font-size: 14px;">Powered by an unalterable audit log, providing complete transparency into the integrity of the election process.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
