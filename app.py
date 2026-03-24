@@ -11,6 +11,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from crypto_utils import crypto_engine
 from config import Config
 from models import db, User, OTP, Candidate, Vote, RegisteredVoter, AuditLog
+import face_utils
+import json
 
 # ─── Auto-create database if it doesn't exist ────────────────────────────────
 def ensure_database_exists():
@@ -57,6 +59,20 @@ def login_required(f):
         if "user_id" not in session:
             flash("Please log in first.", "warning")
             return redirect(url_for("login"))
+        
+        # Check if face verification is required and completed
+        user_email = session.get("user_email")
+        if user_email != "admin@gmail.com": # Admin bypasses face check or can be added later
+            if not session.get("face_verified"):
+                if session.get("pending_face_verify"):
+                    return redirect(url_for("verify_face"))
+                elif session.get("pending_face_enroll"):
+                    return redirect(url_for("enroll_face"))
+                else:
+                    # If somehow session lost these flags but not user_id
+                    flash("Face verification required.", "warning")
+                    return redirect(url_for("login"))
+                    
         return f(*args, **kwargs)
     return decorated
 
@@ -73,16 +89,34 @@ def log_audit(action, user_email=None):
 
 
 def seed_candidates():
-    """Insert default candidates if the table is empty."""
-    if Candidate.query.count() == 0:
-        defaults = [
-            Candidate(name="Aarav Sharma", party="Progressive Alliance", symbol="🌟", color="#6C63FF"),
-            Candidate(name="Priya Patel", party="People's Front", symbol="🌿", color="#00C897"),
-            Candidate(name="Rohan Mehta", party="Democratic Union", symbol="🔥", color="#FF6B6B"),
-            Candidate(name="Sneha Reddy", party="National Coalition", symbol="⚡", color="#FFA726"),
-        ]
-        db.session.add_all(defaults)
-        db.session.commit()
+    """Insert or update default candidates."""
+    defaults = [
+        {"id": 1, "name": "Deepshika", "party": "Computer", "symbol": "🌟", "color": "#6C63FF"},
+        {"id": 2, "name": "Priyanka Ghule", "party": "IT", "symbol": "🌿", "color": "#00C897"},
+        {"id": 3, "name": "Amul Dhumal", "party": "EXTC", "symbol": "🔥", "color": "#FF6B6B"},
+        {"id": 4, "name": "Tejas Hirve", "party": "AIDS", "symbol": "⚡", "color": "#FFA726"},
+    ]
+    
+    for candidate_data in defaults:
+        candidate = Candidate.query.get(candidate_data["id"])
+        if candidate:
+            # Update existing
+            candidate.name = candidate_data["name"]
+            candidate.party = candidate_data["party"]
+            candidate.symbol = candidate_data["symbol"]
+            candidate.color = candidate_data["color"]
+        else:
+            # Add new
+            new_candidate = Candidate(
+                id=candidate_data["id"],
+                name=candidate_data["name"],
+                party=candidate_data["party"],
+                symbol=candidate_data["symbol"],
+                color=candidate_data["color"]
+            )
+            db.session.add(new_candidate)
+    
+    db.session.commit()
 
     if RegisteredVoter.query.count() == 0:
         admin_pw = generate_password_hash("Admin@123")
@@ -186,6 +220,11 @@ def verify_otp():
 
     if request.method == "POST":
         entered_otp = request.form.get("otp", "").strip()
+        
+        # --- EXHAUSTIVE DEBUG LOGS ---
+        print(f"DEBUG: VERIFY_OTP - Request Content: {request.form}")
+        print(f"DEBUG: VERIFY_OTP - Session Email: '{email}'")
+        print(f"DEBUG: VERIFY_OTP - Entered OTP: '{entered_otp}'")
 
         # Find the latest unused OTP for this email
         otp_record = (
@@ -194,6 +233,13 @@ def verify_otp():
             .order_by(OTP.created_at.desc())
             .first()
         )
+
+        print(f"DEBUG: VERIFY_OTP - OTP Record in DB: {bool(otp_record)}")
+        if otp_record:
+            print(f"DEBUG: VERIFY_OTP - DB OTP Code: '{otp_record.otp_code}'")
+            print(f"DEBUG: VERIFY_OTP - Comparison: '{otp_record.otp_code}' == '{entered_otp}'?")
+            print(f"DEBUG: VERIFY_OTP - Match: {otp_record.otp_code == entered_otp}")
+        # -----------------------------
 
         if otp_record and otp_record.otp_code == entered_otp:
             otp_record.is_used = True
@@ -232,12 +278,101 @@ def verify_otp():
 
             flash("Logged in successfully!", "success")
             log_audit("OTP_VERIFICATION_SUCCESS", email)
-            return redirect(url_for("vote"))
+
+            # Check if face is enrolled
+            if registered_voter.face_encoding:
+                session["pending_face_verify"] = True
+                return redirect(url_for("verify_face"))
+            else:
+                session["pending_face_enroll"] = True
+                return redirect(url_for("enroll_face"))
         else:
+            flash("Invalid or expired OTP. Please try again.", "error")
             log_audit("OTP_VERIFICATION_FAILED_INVALID_CODE", email)
-            flash("Invalid OTP. Please try again.", "error")
 
     return render_template("verify_otp.html", email=email)
+
+
+@app.route("/enroll-face", methods=["GET", "POST"])
+def enroll_face():
+    if "user_id" not in session or not session.get("pending_face_enroll"):
+        flash("Unauthorized access.", "error")
+        return redirect(url_for("login"))
+    
+    if request.method == "POST":
+        image_data = request.json.get("image")
+        if not image_data:
+            return {"success": False, "message": "No image data provided"}, 400
+        
+        encoding = face_utils.get_face_encoding(image_data)
+        if encoding:
+            user_email = session.get("user_email")
+            
+            # ─── Check for duplicate face across other accounts ────────────────
+            all_voters = RegisteredVoter.query.filter(RegisteredVoter.face_encoding.isnot(None)).all()
+            stored_encodings_map = {}
+            for v in all_voters:
+                if v.email != user_email: # Don't check against self
+                    try:
+                        stored_encodings_map[v.email] = json.loads(v.face_encoding)
+                    except: continue
+            
+            matching_email = face_utils.find_matching_face(encoding, stored_encodings_map)
+            if matching_email:
+                log_audit("FACE_ENROLLMENT_REJECTED_DUPLICATE", user_email)
+                return {
+                    "success": False, 
+                    "message": "This face is already registered with another account. Multiple accounts cannot use the same face."
+                }, 400
+            # ─────────────────────────────────────────────────────────────────
+
+            registered_voter = RegisteredVoter.query.filter_by(email=user_email).first()
+            if registered_voter:
+                registered_voter.face_encoding = json.dumps(encoding)
+                db.session.commit()
+                session.pop("pending_face_enroll", None)
+                session["face_verified"] = True
+                log_audit("FACE_ENROLLED_SUCCESSFULLY", user_email)
+                return {"success": True, "message": "Face enrolled successfully!"}
+            else:
+                return {"success": False, "message": "User not found in registry"}, 404
+        else:
+            return {"success": False, "message": "No face detected. Please try again."}, 400
+            
+    return render_template("face_enrolment.html")
+
+
+@app.route("/verify-face", methods=["GET", "POST"])
+def verify_face():
+    if "user_id" not in session or not session.get("pending_face_verify"):
+        flash("Unauthorized access.", "error")
+        return redirect(url_for("login"))
+    
+    if request.method == "POST":
+        image_data = request.json.get("image")
+        if not image_data:
+            return {"success": False, "message": "No image data provided"}, 400
+        
+        current_encoding = face_utils.get_face_encoding(image_data)
+        if current_encoding:
+            user_email = session.get("user_email")
+            registered_voter = RegisteredVoter.query.filter_by(email=user_email).first()
+            if registered_voter and registered_voter.face_encoding:
+                stored_encoding = json.loads(registered_voter.face_encoding)
+                if face_utils.compare_faces(stored_encoding, current_encoding):
+                    session.pop("pending_face_verify", None)
+                    session["face_verified"] = True
+                    log_audit("FACE_VERIFIED_SUCCESSFULLY", user_email)
+                    return {"success": True, "message": "Face verified!"}
+                else:
+                    log_audit("FACE_VERIFICATION_FAILED_NO_MATCH", user_email)
+                    return {"success": False, "message": "Face does not match. Try again."}, 400
+            else:
+                return {"success": False, "message": "User face not enrolled."}, 404
+        else:
+            return {"success": False, "message": "No face detected. Please try again."}, 400
+            
+    return render_template("face_verification.html")
 
 
 

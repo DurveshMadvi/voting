@@ -5,56 +5,51 @@
 {% block content %}
 <div class="glass-container" style="max-width: 1400px;">
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; flex-wrap: wrap; gap: 24px;">
-        <div class="dashboard-header animate-fadeIn">
-            <h1 style="font-size: 36px;"><span class="text-gradient">Election</span> <span class="text-brand">Dashboard</span></h1>
-            <p style="color: var(--text-dim); margin-top: 8px;">Real-time decrypted vote tallies and security audit trail.</p>
+        <div class="dashboard-header">
+            <h1 style="font-size: 36px;"><span class="text-gradient">Election</span> <span class="text-brand">Hub</span></h1>
+            <p style="margin-top: 8px; font-weight: 500;">Real-time decrypted vote tallies and security audit trail.</p>
         </div>
         
         <div class="dashboard-stats" style="display: flex; gap: 24px;">
-            <div class="premium-card" style="padding: 16px 32px; text-align: center;">
-                <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px;">Total Ballots Cast</div>
-                <div style="font-size: 24px; font-weight: 800;" class="text-brand">{{ total_votes }}</div>
+            <div class="premium-card" style="padding: 16px 32px; text-align: center; border-color: var(--primary);">
+                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 4px;">Total Ballots</div>
+                <div style="font-size: 32px; font-weight: 900; color: var(--primary);">{{ total_votes }}</div>
             </div>
         </div>
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; align-items: start;">
         <!-- Live Tally Column -->
-        <section class="premium-card" style="position: sticky; top: 120px;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
-                <span style="font-size: 24px;">📊</span>
-                <h3 style="font-size: 20px;">Secure Decrypted Tally</h3>
+        <section class="premium-card admin-grid-overlay" style="position: sticky; top: 120px;">
+            <div class="admin-card-header">
+                <span style="font-size: 24px;">📡</span>
+                <h3 style="font-size: 20px; font-family: var(--font-heading); font-weight: 900; letter-spacing: 1px;">Live Tally Stream</h3>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 32px;">
+            <div style="display: flex; flex-direction: column; gap: 40px; position: relative; z-index: 1;">
                 {% for item in results %}
-                <div class="candidate-result {% if item.is_winner %}candidate-result--winner{% endif %}" style="position: relative;">
+                <div class="candidate-result" style="position: relative; padding: 20px; background: rgba(255,255,255,0.4); border-radius: var(--radius-lg); border: 1px solid var(--border);">
                     {% if item.is_winner %}
-                    <div class="winner-badge animate-fadeIn">
-                        <span style="font-size: 10px; font-weight: 800; letter-spacing: 1px;">ELECTION WINNER</span>
-                    </div>
+                    <div style="position: absolute; top: -12px; right: 20px; background: var(--secondary); color: #fff; padding: 6px 16px; font-size: 10px; font-weight: 900; border-radius: 2px; letter-spacing: 2px; box-shadow: 0 4px 15px var(--secondary-glow);">ELECTION LEADER</div>
                     {% endif %}
                     
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 20px;">{{ item.symbol }}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 60px; height: 60px; background: var(--bg-deep); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 32px; border: 1px solid var(--border);">
+                                {{ item.symbol }}
+                            </div>
                             <div>
-                                <div style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                                    {{ item.name }}
-                                    {% if item.is_winner %}
-                                    <span style="color: #FFD700; font-size: 14px;">🏆</span>
-                                    {% endif %}
-                                </div>
-                                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">{{ item.party }}</div>
+                                <div style="font-weight: 900; font-family: var(--font-heading); font-size: 20px; color: var(--text-main);">{{ item.name }}</div>
+                                <div style="font-size: 11px; color: var(--gold); text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px;">{{ item.party }}</div>
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-size: 18px; font-weight: 800;" class="{% if item.is_winner %}text-brand{% endif %}">{{ "%.1f"|format(item.percentage) }}%</div>
-                            <div style="font-size: 12px; color: var(--text-dim);">{{ item.votes }} votes</div>
+                            <div style="font-size: 28px; font-weight: 900; color: var(--primary); letter-spacing: -1px;">{{ "%.1f"|format(item.percentage) }}%</div>
+                            <div style="font-size: 12px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">{{ item.votes }} verified ballots</div>
                         </div>
                     </div>
-                    <div class="progress-container" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
-                        <div class="progress-bar" style="width: {{ item.percentage }}%; background-color: {{ item.color }}; {% if item.is_winner %}box-shadow: 0 0 15px {{ item.color }}44;{% endif %}"></div>
+                    <div class="progress-container" style="height: 10px; background: rgba(0,0,0,0.05); border-radius: 100px; overflow: hidden; border: 1px solid rgba(0,0,0,0.05);">
+                        <div class="progress-bar" style="width: {{ item.percentage }}%; height: 100%; background: {% if item.is_winner %}linear-gradient(90deg, var(--primary), var(--primary-light)){% else %}var(--text-muted){% endif %}; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
                     </div>
                 </div>
                 {% endfor %}
@@ -63,30 +58,30 @@
 
         <!-- Audit Log Column -->
         <section class="premium-card">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
-                <span style="font-size: 24px;">📝</span>
-                <h3 style="font-size: 20px;">System Security Logs</h3>
+            <div class="admin-card-header">
+                <span style="font-size: 24px;">📡</span>
+                <h3 style="font-size: 20px; font-family: var(--font-heading); font-weight: 900; letter-spacing: 1px;">Security Audit Stream</h3>
             </div>
 
             <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: separate; border-spacing: 0 12px; font-size: 13px;">
-                    <thead style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 11px;">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 13px;">
+                    <thead style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-size: 10px; font-weight: 800;">
                         <tr>
-                            <th style="padding: 0 16px; text-align: left; font-weight: 600;">Timestamp</th>
-                            <th style="padding: 0 16px; text-align: left; font-weight: 600;">Event Action</th>
-                            <th style="padding: 0 16px; text-align: left; font-weight: 600;">Authorized User</th>
+                            <th style="padding: 12px 16px; text-align: left;">Timestamp</th>
+                            <th style="padding: 12px 16px; text-align: left;">Event Action</th>
+                            <th style="padding: 12px 16px; text-align: left;">Authorized User</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for log in logs %}
-                        <tr style="background: rgba(255, 255, 255, 0.02); border-radius: 8px; transition: 0.3s; border: 1px solid var(--border);">
-                            <td style="padding: 16px; border-radius: 12px 0 0 12px; color: var(--text-dim);">{{ log.timestamp.strftime('%H:%M:%S') }}</td>
+                        <tr style="background: rgba(255, 255, 255, 0.3); border-radius: var(--radius-md); transition: var(--transition);">
+                            <td style="padding: 16px; border-radius: var(--radius-md) 0 0 var(--radius-md); color: var(--text-dim); font-weight: 600;">{{ log.timestamp.strftime('%H:%M:%S') }}</td>
                             <td style="padding: 16px;">
-                                <span style="padding: 4px 10px; border-radius: 6px; background: rgba(139, 92, 246, 0.1); color: var(--primary); font-weight: 600; font-size: 11px;">
+                                <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; background: var(--accent); color: var(--gold); font-weight: 800; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;">
                                     {{ log.action }}
                                 </span>
                             </td>
-                            <td style="padding: 16px; border-radius: 0 12px 12px 0; font-family: monospace;">{{ log.user_email }}</td>
+                            <td style="padding: 16px; border-radius: 0 var(--radius-md) var(--radius-md) 0; font-family: 'JetBrains Mono', monospace; font-weight: 500; color: var(--primary);">{{ log.user_email }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -4,25 +4,15 @@
 
 {% block content %}
 <div class="glass-container" style="max-width: 500px;">
-    <div class="premium-card animate-fadeIn">
+    <div class="premium-card">
         <div style="text-align: center; margin-bottom: 32px;">
             <div style="font-size: 48px; margin-bottom: 16px;">🔑</div>
             <h2 class="text-gradient">Secure Access</h2>
-            <p style="color: var(--text-dim); font-size: 14px; margin-top: 8px;">
-                Enter your details to receive an encrypted OTP 
+            <p style="margin-top: 8px; font-size: 14px;">
+                Enter your details to receive an encrypted 
                 verification code.
             </p>
         </div>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash flash--{{ category }}" style="margin-bottom: 24px; padding: 12px 16px; border-radius: var(--radius-md); font-size: 14px; background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2);">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
 
         <form method="POST" action="{{ url_for('login') }}">
             <div class="form-group">
@@ -49,14 +39,14 @@
                 >
             </div>
 
-            <button type="submit" id="login-btn" class="btn-premium btn-primary btn--full" style="width: 100%; border: none;">
-                <span>Send OTP</span>
+            <button type="submit" id="login-btn" class="btn-premium btn-primary" style="width: 100%; border: none;">
                 <i class="fas fa-paper-plane"></i>
+                <span>Send OTP</span>
             </button>
         </form>
 
         <div style="margin-top: 32px; text-align: center;">
-            <a href="{{ url_for('index') }}" style="font-size: 13px; color: var(--text-dim); text-decoration: none;">
+            <a href="{{ url_for('index') }}" style="font-size: 13px; color: var(--text-dim); text-decoration: none; font-weight: 600;">
                 <i class="fas fa-chevron-left" style="margin-right: 4px;"></i> Return to Dashboard
             </a>
         </div>

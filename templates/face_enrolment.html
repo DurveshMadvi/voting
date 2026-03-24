@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Face Enrolment | VoteSecure{% endblock %}
+
+{% block content %}
+<div class="glass-container" style="max-width: 600px;">
+    <div class="premium-card" style="text-align: center;">
+        <div style="margin-bottom: 32px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🛡️</div>
+            <h1 class="text-gradient">Biometric Enrolment</h1>
+            <p>Position your face within the tactical frame to secure your identity.</p>
+        </div>
+
+        <div class="scanner-container" style="max-width: 400px; margin: 0 auto 30px; aspect-ratio: 4/3;">
+            <video id="video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+            <canvas id="canvas" width="400" height="300" style="display:none;"></canvas>
+            
+            <div class="scanner-line"></div>
+            <div class="scanner-crosshair"></div>
+            
+            <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 4px; font-size: 10px; font-family: monospace; color: var(--primary); border: 1px solid var(--primary); letter-spacing: 1px;">
+                REC [LIVE FEED]
+            </div>
+        </div>
+
+        <div id="status-message" class="status-msg" style="margin-bottom: 24px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;"></div>
+
+        <div class="auth-actions">
+            <button id="capture-btn" class="btn-premium btn-primary btn-charging pulse-elite" style="width: 100%; border: none;">
+                <i class="fas fa-camera"></i>
+                <span>Capture Elite Face Identity</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .status-msg.error { color: var(--secondary); }
+    .status-msg.success { color: #2D6A4F; }
+</style>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const statusMsg = document.getElementById('status-message');
+
+    // Access webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            console.error("Webcam error:", err);
+            statusMsg.textContent = "Error: Could not access webcam. Please check permissions.";
+            statusMsg.className = "status-msg error";
+            captureBtn.disabled = true;
+        });
+
+    captureBtn.addEventListener('click', () => {
+        statusMsg.textContent = "Processing... please wait.";
+        statusMsg.className = "status-msg";
+        captureBtn.disabled = true;
+
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, 400, 300);
+        const imageData = canvas.toDataURL('image/jpeg');
+
+        fetch("{{ url_for('enroll_face') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ image: imageData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusMsg.textContent = data.message;
+                statusMsg.className = "status-msg success";
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('vote') }}";
+                }, 2000);
+            } else {
+                statusMsg.textContent = data.message;
+                statusMsg.className = "status-msg error";
+                captureBtn.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+            statusMsg.textContent = "Network error. Please try again.";
+            statusMsg.className = "status-msg error";
+            captureBtn.disabled = false;
+        });
+    });
+</script>
+{% endblock %}

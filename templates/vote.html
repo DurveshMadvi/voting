@@ -5,8 +5,8 @@
 {% block content %}
 <div class="glass-container">
     <div class="header-section" style="text-align: center; margin-bottom: 50px;">
-        <h1 class="text-gradient" style="font-size: 40px;">Select your <span class="text-brand">Representative</span></h1>
-        <p style="color: var(--text-dim); margin-top: 10px;">Choose one candidate below. Your vote is end-to-end encrypted.</p>
+        <h1 class="text-gradient">Select your <span class="text-brand">Representative</span></h1>
+        <p>Choose one candidate below. Your vote is end-to-end encrypted.</p>
     </div>
 
     <form method="POST" action="{{ url_for('vote') }}" id="vote-form">
@@ -24,10 +24,10 @@
                 <div class="candidate-symbol">
                     <span>{{ candidate.symbol }}</span>
                 </div>
-                <h3 style="margin-bottom: 4px;">{{ candidate.name }}</h3>
-                <p style="color: var(--text-dim); font-size: 13px; font-weight: 500;">{{ candidate.party }}</p>
+                <h3 class="candidate-name">{{ candidate.name }}</h3>
+                <p style="font-size: 13px; font-weight: 700; color: var(--text-muted); opacity: 0.8;">{{ candidate.party }}</p>
                 
-                <div class="selection-indicator" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent;">
+                <div class="selection-indicator" style="position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); transition: var(--transition); display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent;">
                     <i class="fas fa-check"></i>
                 </div>
             </label>
@@ -35,11 +35,11 @@
         </div>
 
         <div style="text-align: center; margin-top: 60px;">
-            <button type="submit" id="submit-vote-btn" class="btn-premium btn-primary" style="padding: 20px 60px; font-size: 18px; border: none;">
-                <i class="fas fa-vote-yea" style="margin-right: 12px;"></i>
+            <button type="submit" id="submit-vote-btn" class="btn-premium btn-primary" style="padding: 24px 80px; font-size: 16px;">
+                <i class="fas fa-vote-yea"></i>
                 <span>Submit Secure Vote</span>
             </button>
-            <p style="margin-top: 20px; color: var(--text-muted); font-size: 13px;">
+            <p style="margin-top: 24px; color: var(--text-muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700;">
                 <i class="fas fa-info-circle"></i> Once submitted, your vote cannot be altered or removed.
             </p>
         </div>

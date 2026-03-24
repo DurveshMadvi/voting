@@ -4,56 +4,47 @@
 
 {% block content %}
 <div class="glass-container" style="max-width: 700px;">
-    <div class="premium-card animate-fadeIn" style="text-align: center; border-color: var(--secondary);">
+    <div class="premium-card" style="text-align: center;">
         <div style="position: relative; display: inline-block; margin-bottom: 32px;">
             <div style="font-size: 64px; position: relative; z-index: 2;">🛡️</div>
-            <div
-                style="position: absolute; inset: -20px; background: var(--secondary-glow); border-radius: 50%; filter: blur(30px); z-index: 1;">
-            </div>
+            <div style="position: absolute; inset: -20px; background: var(--primary-glow); border-radius: 50%; filter: blur(30px); z-index: 1;"></div>
         </div>
 
-        <h1 class="text-gradient">Your Vote is <span style="color: var(--secondary);">Secure</span></h1>
-        <p style="color: var(--text-dim); margin-top: 12px; font-size: 16px;">The system has permanently recorded your
-            cryptographic ballot.</p>
+        <h1 class="text-gradient">Your Vote is <span style="color: var(--primary);">Secure</span></h1>
+        <p style="margin-top: 12px; font-size: 16px;">The system has permanently recorded your cryptographic ballot.</p>
 
-        <div
-            style="margin: 40px 0; padding: 24px; background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); text-align: left;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <span
-                    style="font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">Ballot
-                    Confirmation</span>
-                <span
-                    style="padding: 4px 12px; background: var(--secondary); color: #fff; font-size: 11px; font-weight: 700; border-radius: 100px;">VERIFIED</span>
+        <div style="margin: 40px 0; padding: 30px; background: var(--bg-surface); border: 2px dashed var(--border-bright); border-radius: var(--radius-lg); text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Ballot Confirmation</span>
+                <span style="padding: 6px 16px; background: var(--primary); color: #fff; font-size: 10px; font-weight: 900; border-radius: 2px; letter-spacing: 1px;">VERIFIED</span>
             </div>
 
-            {% if vote_detail %}
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <div style="font-size: 32px;">{{ vote_detail.symbol }}</div>
+            {% if voted_candidate %}
+            <div style="display: flex; align-items: center; gap: 24px;">
+                <div style="font-size: 48px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));">{{ voted_candidate.symbol }}</div>
                 <div>
-                    <div style="font-size: 14px; color: var(--text-dim);">You voted for</div>
-                    <div style="font-size: 20px; font-weight: 700;">{{ vote_detail.name }}</div>
+                    <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">You voted for</div>
+                    <div style="font-size: 24px; font-weight: 900; color: var(--text-main); font-family: var(--font-heading);">{{ voted_candidate.name }}</div>
                 </div>
             </div>
             {% else %}
-            <div style="text-align: center; color: var(--error);">
-                <i class="fas fa-exclamation-triangle"></i> You have already voted.
+            <div style="text-align: center; color: var(--secondary);">
+                <i class="fas fa-exclamation-triangle"></i> Access Resticted.
             </div>
             {% endif %}
         </div>
 
-        <p style="color: var(--text-muted); font-size: 13px; line-height: 1.6; max-width: 500px; margin: 0 auto 32px;">
-            Election results are currently protected by multi-layered encryption.
-            Final tallies will be released once the administrative review block is lifted.
+        <p style="color: var(--text-muted); font-size: 13px; line-height: 1.8; max-width: 500px; margin: 0 auto 40px; font-weight: 500;">
+            Election results are protected by multi-layered encryption.
+            Final tallies will be released once administrative review is complete.
         </p>
 
         <div style="display: flex; gap: 16px; justify-content: center;">
-            <a href="{{ url_for('index') }}" class="btn-premium btn-outline"
-                style="padding: 12px 24px; font-size: 14px;">
+            <a href="{{ url_for('index') }}" class="btn-premium btn-outline" style="background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-main); text-decoration: none;">
                 <i class="fas fa-home"></i> Back to Hub
             </a>
-            <button onclick="window.print()" class="btn-premium btn-primary"
-                style="padding: 12px 24px; font-size: 14px; background: var(--bg-surface); border-color: var(--border);">
-                <i class="fas fa-download"></i> Save Receipt
+            <button onclick="window.print()" class="btn-premium btn-primary">
+                <i class="fas fa-print"></i> Print Receipt
             </button>
         </div>
     </div>

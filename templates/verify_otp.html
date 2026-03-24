@@ -6,23 +6,13 @@
 <div class="glass-container" style="max-width: 500px;">
     <div class="premium-card">
         <div style="text-align: center; margin-bottom: 32px;">
-            <div style="font-size: 48px; margin-bottom: 16px;">✉️</div>
-            <h2 class="text-gradient">Two-Factor Auth</h2>
-            <p style="color: var(--text-dim); font-size: 14px; margin-top: 8px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🛡️</div>
+            <h2 class="text-gradient">Verification</h2>
+            <p style="font-size: 14px; margin-top: 8px;">
                 Enter the unique 6-digit code sent to<br>
-                <strong style="color: var(--text-main)">{{ email }}</strong>
+                <strong style="color: var(--primary)">{{ email }}</strong>
             </p>
         </div>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash flash--{{ category }}" style="margin-bottom: 24px;">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
 
         <form method="POST" action="{{ url_for('verify_otp') }}">
             <input type="hidden" name="email" value="{{ email }}">
